@@ -47,5 +47,14 @@
                 if (chessboard.IsEmpty(to) || chessboard[to].Color != Color) yield return to;
             }
         }
+
+        public override bool CanCaptureOpponentKing(Position from, Chessboard chessboard)
+        {
+            return ValidMovePositions(from, chessboard).Any(to =>
+            {
+                Piece piece = chessboard[to];
+                return piece != null && piece.Type == PieceType.King;
+            });
+        }
     }
 }

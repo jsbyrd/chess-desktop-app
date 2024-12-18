@@ -75,5 +75,14 @@ namespace ChessLogic
                 }
             }
         }
+
+        public override bool CanCaptureOpponentKing(Position from, Chessboard chessboard)
+        {
+            return DiagonalMoves(from, chessboard).Any(move =>
+            {
+                Piece piece = chessboard[move.ToPosition];
+                return piece != null && piece.Type == PieceType.King;
+            });
+        }
     }
 }
