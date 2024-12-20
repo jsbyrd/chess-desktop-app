@@ -54,13 +54,24 @@ namespace ChessLogic
             
             if (CanMoveTo(oneRankPos, chessboard))
             {
-                yield return new NormalMove(from, oneRankPos);
-                Position twoRankPos = oneRankPos + Forward;
-
-                if (!HasMoved && CanMoveTo(twoRankPos, chessboard))
+                if (oneRankPos.Row == 0 || oneRankPos.Row == 7)
                 {
-                    yield return new NormalMove(from, twoRankPos);
+                    foreach (Move promotionMove in PromotionMoves(from, oneRankPos))
+                    {
+                        yield return promotionMove;
+                    }
                 }
+                else
+                {
+                    yield return new NormalMove(from, oneRankPos);
+                    Position twoRankPos = oneRankPos + Forward;
+
+                    if (!HasMoved && CanMoveTo(twoRankPos, chessboard))
+                    {
+                        yield return new NormalMove(from, twoRankPos);
+                    }
+                }
+
             }
         }
 
@@ -71,9 +82,27 @@ namespace ChessLogic
                 Position to = from + Forward + dir;
                 if (CanCaptureAt(to, chessboard))
                 {
-                    yield return new NormalMove(from, to);
+                    if (to.Row == 0 || to.Row == 7)
+                    {
+                        foreach (Move promotionMove in PromotionMoves(from, to))
+                        {
+                            yield return promotionMove;
+                        }
+                    }
+                    else
+                    {
+                        yield return new NormalMove(from, to);
+                    }
                 }
             }
+        }
+
+        private static IEnumerable<Move> PromotionMoves(Position from, Position to)
+        {
+            yield return new PawnPromotion(from, to, PieceType.Knight);
+            yield return new PawnPromotion(from, to, PieceType.Bishop);
+            yield return new PawnPromotion(from, to, PieceType.Rook);
+            yield return new PawnPromotion(from, to, PieceType.Queen);
         }
 
         public override bool CanCaptureOpponentKing(Position from, Chessboard chessboard)
