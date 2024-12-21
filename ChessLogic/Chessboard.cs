@@ -3,6 +3,11 @@
     public class Chessboard
     {
         private readonly Piece[,] pieces = new Piece[8, 8];
+        private readonly Dictionary<Player, Position> EnPassantPositions = new Dictionary<Player, Position>
+        {
+            {Player.White, null },
+            {Player.Black, null }
+        };
 
         public Piece this[int row, int col]
         {
@@ -108,6 +113,16 @@
             }
 
             return copy;
+        }
+
+        public Position GetEnPassantPosition(Player player)
+        {
+            return EnPassantPositions[player];
+        }
+
+        public void SetEnPassantPosition(Player player, Position pos)
+        {
+            EnPassantPositions[player] = pos;
         }
     }
 }

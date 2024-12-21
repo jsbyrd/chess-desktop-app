@@ -1,4 +1,6 @@
 ﻿
+using ChessLogic.Moves;
+
 namespace ChessLogic
 {
     public class Pawn : Piece
@@ -68,7 +70,7 @@ namespace ChessLogic
 
                     if (!HasMoved && CanMoveTo(twoRankPos, chessboard))
                     {
-                        yield return new NormalMove(from, twoRankPos);
+                        yield return new DoublePawnMove(from, twoRankPos);
                     }
                 }
 
@@ -80,7 +82,13 @@ namespace ChessLogic
             foreach (Direction dir in new Direction[] {Direction.West, Direction.East })
             {
                 Position to = from + Forward + dir;
-                if (CanCaptureAt(to, chessboard))
+
+                if (to == chessboard.GetEnPassantPosition(Color.Opponent()))
+                {
+                    yield return new EnPassantMove(from, to);
+                }
+
+                else if (CanCaptureAt(to, chessboard))
                 {
                     if (to.Row == 0 || to.Row == 7)
                     {

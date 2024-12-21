@@ -26,6 +26,7 @@
 
         public void MakeMove(Move move)
         {
+            Chessboard.SetEnPassantPosition(CurrentPlayer, null);
             move.MakeMove(Chessboard);
             CurrentPlayer = CurrentPlayer.Opponent();
             CheckForGameOver();
