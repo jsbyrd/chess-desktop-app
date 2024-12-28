@@ -30,12 +30,14 @@
             }
         }
 
-        public override void MakeMove(Chessboard chessboard)
+        public override bool MakeMove(Chessboard chessboard)
         {
             // Move King
             new NormalMove(FromPosition, ToPosition).MakeMove(chessboard);
             // Move Rook
             new NormalMove(RookFromPosition, RookToPosition).MakeMove(chessboard);
+
+            return false;
         }
 
         public override bool IsLegal(Chessboard chessboard)

@@ -5,7 +5,7 @@
         public abstract MoveType Type { get; }
         public abstract Position FromPosition { get; }
         public abstract Position ToPosition { get; }
-        public abstract void MakeMove(Chessboard chessboard);
+        public abstract bool MakeMove(Chessboard chessboard);
 
         /// <summary>
         /// Checks to see if this move results in the current player's king in check

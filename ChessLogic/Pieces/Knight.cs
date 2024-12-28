@@ -1,5 +1,4 @@
-﻿
-namespace ChessLogic
+﻿namespace ChessLogic
 {
     public class Knight : Piece
     {

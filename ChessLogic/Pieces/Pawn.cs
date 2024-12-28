@@ -1,5 +1,4 @@
-﻿
-using ChessLogic.Moves;
+﻿using ChessLogic;
 
 namespace ChessLogic
 {

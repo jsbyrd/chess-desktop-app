@@ -11,12 +11,15 @@
             ToPosition = to;
         }
 
-        public override void MakeMove(Chessboard chessboard)
+        public override bool MakeMove(Chessboard chessboard)
         {
             Piece piece = chessboard[FromPosition];
+            bool hasCapturedPiece = !chessboard.IsEmpty(ToPosition);
             chessboard[ToPosition] = piece;
             chessboard[FromPosition] = null;
             piece.HasMoved = true;
+
+            return hasCapturedPiece || piece.Type == PieceType.Pawn;
         }
     }
 }

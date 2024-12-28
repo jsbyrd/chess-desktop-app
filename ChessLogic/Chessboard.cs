@@ -124,5 +124,124 @@
         {
             EnPassantPositions[player] = pos;
         }
+
+        public PieceCounts CountPieces()
+        {
+            PieceCounts pieceCounts = new PieceCounts();
+
+            foreach (Position pos in AllPiecePositions())
+            {
+                Piece piece = this[pos];
+                pieceCounts.IncrementCount(piece.Color, piece.Type);
+            }
+
+            return pieceCounts;
+        }
+
+        public bool IsInsufficientMaterial()
+        {
+            PieceCounts pieceCounts = CountPieces();
+            return IsKingVsKing(pieceCounts)
+                || IsKingVsKingBishop(pieceCounts)
+                || IsKingVsKingKnight(pieceCounts)
+                || IsKingBishopVsKingBishop(pieceCounts);
+        }
+
+        private static bool IsKingVsKing(PieceCounts pieceCounts)
+        {
+            return pieceCounts.TotalCount == 2;
+        }
+
+        private static bool IsKingVsKingBishop(PieceCounts pieceCounts)
+        {
+            return pieceCounts.TotalCount == 3
+                && (pieceCounts.WhitePieceCount(PieceType.Bishop) == 1 || pieceCounts.BlackPieceCount(PieceType.Bishop) == 1);
+        }
+
+        private static bool IsKingVsKingKnight(PieceCounts pieceCounts)
+        {
+            return pieceCounts.TotalCount == 3
+                && (pieceCounts.WhitePieceCount(PieceType.Knight) == 1 || pieceCounts.BlackPieceCount(PieceType.Knight) == 1);
+        }
+
+        private bool IsKingBishopVsKingBishop(PieceCounts pieceCounts)
+        {
+            if (pieceCounts.TotalCount != 4) return false;
+            if (pieceCounts.WhitePieceCount(PieceType.Bishop) != 1 || pieceCounts.WhitePieceCount(PieceType.Bishop) != 1) return false;
+
+            // Here, we have exactly 4 pieces: wKing, bKing, wBishop, and bBishop
+            // Insufficient material only applies when the two bishops are opposite colored bishops
+            Position whiteBishop = FindPiece(Player.White, PieceType.Bishop);
+            Position blackBishop = FindPiece(Player.Black, PieceType.Bishop);
+            return whiteBishop.GetSquareColor() == blackBishop.GetSquareColor();
+        }
+
+        private Position FindPiece(Player color, PieceType type)
+        {
+            return PiecePositionsFor(color).First(pos => this[pos].Type == type);
+        }
+
+        private bool IsUnmovedKingAndRook(Position kingPos, Position rookPos)
+        {
+            if (IsEmpty(kingPos) || IsEmpty(rookPos)) return false;
+
+            Piece king = this[kingPos];
+            Piece rook = this[rookPos];
+
+            return king.Type == PieceType.King
+                && rook.Type == PieceType.Rook
+                && !king.HasMoved
+                && !rook.HasMoved;
+        }
+
+        public bool CanCastleKingSide(Player player)
+        {
+            return player switch
+            {
+                Player.White => IsUnmovedKingAndRook(new Position(7, 4), new Position(7, 7)),
+                Player.Black => IsUnmovedKingAndRook(new Position(0, 4), new Position(0, 7)),
+                _ => false
+            };
+        }
+        public bool CanCastleQueenSide(Player player)
+        {
+            return player switch
+            {
+                Player.White => IsUnmovedKingAndRook(new Position(7, 4), new Position(7, 0)),
+                Player.Black => IsUnmovedKingAndRook(new Position(0, 4), new Position(0, 0)),
+                _ => false
+            };
+        }
+
+        private bool HasPawnInPosition(Player player, Position[] pawnPositions, Position enPassantPos)
+        {
+            foreach (Position pos in pawnPositions.Where(IsInside))
+            {
+                Piece piece = this[pos];
+                if (piece == null || piece.Color != player || piece.Type != PieceType.Pawn) continue;
+
+                EnPassantMove move = new EnPassantMove(pos, enPassantPos);
+
+                if (move.IsLegal(this)) return true;
+            }
+
+            return false;
+        }
+
+        public bool CanCaptureEnPassant(Player player)
+        {
+            Position enPassantPos = GetEnPassantPosition(player.Opponent());
+
+            if (enPassantPos == null) return false;
+
+            Position[] pawnPositions = player switch
+            {
+                Player.White => new Position[] { enPassantPos + Direction.SouthWest, enPassantPos + Direction.SouthEast },
+                Player.Black => new Position[] { enPassantPos + Direction.NorthWest, enPassantPos + Direction.NorthEast },
+                _ => []
+            };
+
+            return HasPawnInPosition(player, pawnPositions, enPassantPos);
+        }
     }
 }

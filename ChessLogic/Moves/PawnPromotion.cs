@@ -26,13 +26,15 @@
             };
         }
 
-        public override void MakeMove(Chessboard chessboard)
+        public override bool MakeMove(Chessboard chessboard)
         {
             Piece pawn = chessboard[FromPosition];
             chessboard[FromPosition] = null;
             Piece promotionPiece = CreatePromotionPiece(pawn.Color);
             promotionPiece.HasMoved = true;
             chessboard[ToPosition] = promotionPiece;
+
+            return true;
         }
     }
 }

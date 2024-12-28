@@ -210,6 +210,7 @@ public partial class MainWindow : Window
 
     private void RestartGame()
     {
+        selectedPosition = null;
         HideHighlights();
         moveCache.Clear();
         gameState = new GameState(Player.White, Chessboard.Initial());

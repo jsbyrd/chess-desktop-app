@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace ChessLogic
+﻿namespace ChessLogic
 {
     class DoublePawnMove : Move
     {
@@ -20,11 +14,13 @@ namespace ChessLogic
             SkippedPosition = new Position((fromPosition.Row + toPosition.Row) / 2, fromPosition.Column);
         }
 
-        public override void MakeMove(Chessboard chessboard)
+        public override bool MakeMove(Chessboard chessboard)
         {
             Player player = chessboard[FromPosition].Color;
             chessboard.SetEnPassantPosition(player, SkippedPosition);
             new NormalMove(FromPosition, ToPosition).MakeMove(chessboard);
+
+            return true;
         }
     }
 }

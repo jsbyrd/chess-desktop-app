@@ -14,10 +14,12 @@
             CapturedPawnPosition = new Position(from.Row, to.Column);
         }
 
-        public override void MakeMove(Chessboard chessboard)
+        public override bool MakeMove(Chessboard chessboard)
         {
             new NormalMove(FromPosition, ToPosition).MakeMove(chessboard);
             chessboard[CapturedPawnPosition] = null;
+
+            return true;
         }
     }
 }

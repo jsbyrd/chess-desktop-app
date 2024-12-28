@@ -1,6 +1,4 @@
-﻿using System.Drawing;
-
-namespace ChessLogic
+﻿namespace ChessLogic
 {
     public class King : Piece
     {
