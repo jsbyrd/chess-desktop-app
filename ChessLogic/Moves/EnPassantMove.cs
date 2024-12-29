@@ -1,4 +1,4 @@
-﻿namespace ChessLogic.Moves
+﻿namespace ChessLogic
 {
     public class EnPassantMove : Move
     {

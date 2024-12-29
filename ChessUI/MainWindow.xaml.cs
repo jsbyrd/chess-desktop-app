@@ -1,12 +1,7 @@
-﻿using System.Text;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
 using System.Windows.Shapes;
 using ChessLogic;
 
@@ -22,6 +17,7 @@ public partial class MainWindow : Window
     private readonly Dictionary<Position, Move> moveCache = new Dictionary<Position, Move>();
     private GameState gameState;
     private Position selectedPosition = null;
+    private Player userPerspective = Player.Black;
 
     public MainWindow()
     {
@@ -55,8 +51,11 @@ public partial class MainWindow : Window
         {
             for (int col = 0; col < 8; col++)
             {
+                int displayRow = userPerspective == Player.Black ? BlackDisplayOffset(row) : row;
+                int displayCol = userPerspective == Player.Black ? BlackDisplayOffset(col) : col;
+
                 Piece piece = chessboard[row, col];
-                pieceImages[row, col].Source = Images.GetImage(piece);
+                pieceImages[displayRow, displayCol].Source = Images.GetImage(piece);
 
             }
         }
@@ -142,6 +141,13 @@ public partial class MainWindow : Window
         double squareSize = BoardGrid.ActualHeight / 8;
         int row = (int)(point.Y / squareSize);
         int col = (int)(point.X / squareSize);
+
+        if (userPerspective == Player.Black)
+        {
+            row = BlackDisplayOffset(row);
+            col = BlackDisplayOffset(col);
+        }
+
         return new Position(row, col);
     }
 
@@ -161,7 +167,9 @@ public partial class MainWindow : Window
 
         foreach (Position to in moveCache.Keys)
         {
-            highlights[to.Row, to.Column].Fill = new SolidColorBrush(color);
+            int displayRow = (userPerspective == Player.Black) ? BlackDisplayOffset(to.Row) : to.Row;
+            int displayCol = (userPerspective == Player.Black) ? BlackDisplayOffset(to.Column) : to.Column;
+            highlights[displayRow, displayCol].Fill = new SolidColorBrush(color);
         }
     }
 
@@ -169,7 +177,9 @@ public partial class MainWindow : Window
     {
         foreach (Position to in moveCache.Keys)
         {
-            highlights[to.Row, to.Column].Fill = Brushes.Transparent;
+            int displayRow = (userPerspective == Player.Black) ? BlackDisplayOffset(to.Row) : to.Row;
+            int displayCol = (userPerspective == Player.Black) ? BlackDisplayOffset(to.Column) : to.Column;
+            highlights[displayRow, displayCol].Fill = Brushes.Transparent;
         }
     }
 
@@ -239,5 +249,10 @@ public partial class MainWindow : Window
                 RestartGame();
             }
         };
+    }
+
+    private int BlackDisplayOffset(int rowOrCol)
+    {
+        return 7 - rowOrCol;
     }
 }
