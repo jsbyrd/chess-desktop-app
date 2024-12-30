@@ -17,12 +17,14 @@ public partial class MainWindow : Window
     private readonly Dictionary<Position, Move> moveCache = new Dictionary<Position, Move>();
     private GameState gameState;
     private Position selectedPosition = null;
-    private Player userPerspective = Player.Black;
+    private Player userPerspective = Player.White;
+    private OpponentType opponentType = OpponentType.Freestyle;
 
     public MainWindow()
     {
         InitializeComponent();
         InitializeBoard();
+        ShowStartMenu();
         gameState = new GameState(Player.White, Chessboard.Initial());
         DrawBoard(gameState.Chessboard);
         SetCursor(gameState.CurrentPlayer);
@@ -64,6 +66,7 @@ public partial class MainWindow : Window
     private void BoardGrid_MouseDown(object sender, MouseButtonEventArgs e)
     {
         if (IsMenuOnScreen()) return;
+        if (opponentType != OpponentType.Freestyle && IsBotTurn()) return;
 
         Point point = e.GetPosition(BoardGrid);
         Position pos = ToSquarePosition(point);
@@ -130,6 +133,22 @@ public partial class MainWindow : Window
         DrawBoard(gameState.Chessboard);
         SetCursor(gameState.CurrentPlayer);
 
+        if (gameState.IsGameOver())
+        {
+            ShowGameOver();
+            return;
+        }
+
+        // If not freestyle, let bot make move
+        if (opponentType == OpponentType.Random && IsBotTurn()) HandleRandomBotMove();
+    }
+
+    private async void HandleRandomBotMove()
+    {
+        await Task.Delay(500);
+        RandomBot.MakeRandomMove(gameState);
+        DrawBoard(gameState.Chessboard);
+        SetCursor(gameState.CurrentPlayer);
         if (gameState.IsGameOver())
         {
             ShowGameOver();
@@ -218,6 +237,12 @@ public partial class MainWindow : Window
         };
     }
 
+    private void StartGame()
+    {
+        MenuContainer.Content = null;
+        RestartGame();
+    }
+
     private void RestartGame()
     {
         selectedPosition = null;
@@ -226,6 +251,7 @@ public partial class MainWindow : Window
         gameState = new GameState(Player.White, Chessboard.Initial());
         DrawBoard(gameState.Chessboard);
         SetCursor(gameState.CurrentPlayer);
+        if (opponentType == OpponentType.Random && IsBotTurn()) HandleRandomBotMove();
     }
 
     private void Window_KeyDown(object sender, KeyEventArgs e)
@@ -248,11 +274,47 @@ public partial class MainWindow : Window
             {
                 RestartGame();
             }
+            if (option == Option.Menu)
+            {
+                ShowStartMenu();
+            }
         };
     }
 
     private int BlackDisplayOffset(int rowOrCol)
     {
         return 7 - rowOrCol;
+    }
+
+    private void ShowStartMenu()
+    {
+        RestartGame();
+        StartMenu startMenu = new StartMenu();
+        startMenu.PlayerButton.Content = userPerspective;
+        startMenu.OpponentSelect.SelectedValue = opponentType;
+        MenuContainer.Content = startMenu;
+        startMenu.OptionSelected += option =>
+        {
+            // Player Color Option
+            if (option == Option.Black) ChangeUserPerspective(Player.Black);
+            if (option == Option.White) ChangeUserPerspective(Player.White);
+            // Opponent Type Option
+            if (option == Option.Freestyle) opponentType = OpponentType.Freestyle;
+            if (option == Option.Random) opponentType = OpponentType.Random;
+            // Start/Exit Option
+            if (option == Option.Start) StartGame();
+            if (option == Option.Exit) Application.Current.Shutdown();
+        };
+    }
+
+    private void ChangeUserPerspective(Player player)
+    {
+        userPerspective = player;
+        DrawBoard(gameState.Chessboard);
+    }
+
+    private bool IsBotTurn()
+    {
+        return gameState.CurrentPlayer != userPerspective;
     }
 }

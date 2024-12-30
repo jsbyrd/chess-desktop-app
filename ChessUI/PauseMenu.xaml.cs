@@ -24,5 +24,10 @@ namespace ChessUI
         {
             OptionSelected?.Invoke(Option.Restart);
         }
+
+        private void Menu_Click(object sender, RoutedEventArgs e)
+        {
+            OptionSelected?.Invoke(Option.Menu);
+        }
     }
 }
