@@ -167,7 +167,7 @@
         private bool IsKingBishopVsKingBishop(PieceCounts pieceCounts)
         {
             if (pieceCounts.TotalCount != 4) return false;
-            if (pieceCounts.WhitePieceCount(PieceType.Bishop) != 1 || pieceCounts.WhitePieceCount(PieceType.Bishop) != 1) return false;
+            if (pieceCounts.WhitePieceCount(PieceType.Bishop) != 1 || pieceCounts.BlackPieceCount(PieceType.Bishop) != 1) return false;
 
             // Here, we have exactly 4 pieces: wKing, bKing, wBishop, and bBishop
             // Insufficient material only applies when the two bishops are opposite colored bishops
