@@ -10,6 +10,7 @@
         Black,
         White,
         Freestyle,
-        Random
+        Random,
+        Engine
     }
 }

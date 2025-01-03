@@ -74,6 +74,7 @@
                     Style="{StaticResource ComboBoxStyle}">
                     <ComboBoxItem Content="Freestyle" />
                     <ComboBoxItem Content="Random" />
+                    <ComboBoxItem Content="Engine" />
                 </ComboBox>
             </StackPanel>
 

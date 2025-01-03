@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -15,6 +16,10 @@ public partial class MainWindow : Window
     private readonly Image[,] pieceImages = new Image[8, 8];
     private readonly Rectangle[,] highlights = new Rectangle[8, 8];
     private readonly Dictionary<Position, Move> moveCache = new Dictionary<Position, Move>();
+    private readonly int ENGINE_DEPTH = 4;
+    private readonly bool DEBUG_MODE = false; // Used for testing chess engine on different positions
+    private readonly string DEBUG_FEN = "1B2q1B1/2n1kPR1/R1b2n1Q/2p1r3/8/3Q2B1/4p3/4K3 w - - 0 1";
+    //private readonly string DEBUG_FEN = "kbK5/pp6/1P6/8/8/8/8/R7 w - - 0 1";
     private GameState gameState;
     private Position selectedPosition = null;
     private Player userPerspective = Player.White;
@@ -141,12 +146,25 @@ public partial class MainWindow : Window
 
         // If not freestyle, let bot make move
         if (opponentType == OpponentType.Random && IsBotTurn()) HandleRandomBotMove();
+        if (opponentType == OpponentType.Engine && IsBotTurn()) HandleEngineBotMove();
     }
 
     private async void HandleRandomBotMove()
     {
         await Task.Delay(500);
         RandomBot.MakeRandomMove(gameState);
+        DrawBoard(gameState.Chessboard);
+        SetCursor(gameState.CurrentPlayer);
+        if (gameState.IsGameOver())
+        {
+            ShowGameOver();
+        }
+    }
+
+    private async void HandleEngineBotMove()
+    {
+        await Task.Delay(100);
+        ChessEngineBot.MakeEngineMove(gameState, ENGINE_DEPTH);
         DrawBoard(gameState.Chessboard);
         SetCursor(gameState.CurrentPlayer);
         if (gameState.IsGameOver())
@@ -248,10 +266,14 @@ public partial class MainWindow : Window
         selectedPosition = null;
         HideHighlights();
         moveCache.Clear();
-        gameState = new GameState(Player.White, Chessboard.Initial());
+
+        if (DEBUG_MODE) gameState = FenString.GameStateFromFen(DEBUG_FEN);
+        else gameState = new GameState(Player.White, Chessboard.Initial());
+
         DrawBoard(gameState.Chessboard);
         SetCursor(gameState.CurrentPlayer);
         if (opponentType == OpponentType.Random && IsBotTurn()) HandleRandomBotMove();
+        if (opponentType == OpponentType.Engine && IsBotTurn()) HandleEngineBotMove();
     }
 
     private void Window_KeyDown(object sender, KeyEventArgs e)
@@ -301,6 +323,7 @@ public partial class MainWindow : Window
             // Opponent Type Option
             if (option == Option.Freestyle) opponentType = OpponentType.Freestyle;
             if (option == Option.Random) opponentType = OpponentType.Random;
+            if (option == Option.Engine) opponentType = OpponentType.Engine;
             // Start/Exit Option
             if (option == Option.Start) StartGame();
             if (option == Option.Exit) Application.Current.Shutdown();

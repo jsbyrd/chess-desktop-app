@@ -3,6 +3,7 @@
     public enum OpponentType
     {
         Freestyle,
-        Random
+        Random,
+        Engine,
     }
 }

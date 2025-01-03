@@ -45,6 +45,7 @@ namespace ChessUI
             Trace.WriteLine(selectedOpponent);
             if (selectedOpponent == "Freestyle") OptionSelected?.Invoke(Option.Freestyle);
             else if (selectedOpponent == "Random") OptionSelected?.Invoke(Option.Random);
+            else if (selectedOpponent == "Engine") OptionSelected?.Invoke(Option.Engine);
         }
     }
 }

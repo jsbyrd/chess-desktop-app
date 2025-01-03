@@ -118,5 +118,55 @@ namespace ChessLogic
                 sb.Append(rank);
             }
         }
+
+        public static GameState GameStateFromFen(string fen)
+        {
+            string[] parts = fen.Split(' ');
+            if (parts.Length < 4)
+                throw new ArgumentException("Invalid FEN string");
+
+            Chessboard chessboard = new Chessboard();
+            string[] rows = parts[0].Split('/');
+            for (int row = 0; row < 8; row++)
+            {
+                int col = 0;
+                foreach (char c in rows[row]) // FEN starts from rank 8
+                {
+                    if (char.IsDigit(c))
+                    {
+                        col += c - '0';
+                    }
+                    else
+                    {
+                        Player player = Char.IsUpper(c) ? Player.White : Player.Black;
+                        Piece piece = Char.ToLower(c) switch
+                        {
+                            'p' => new Pawn(player),
+                            'n' => new Knight(player),
+                            'b' => new Bishop(player),
+                            'r' => new Rook(player),
+                            'q' => new Queen(player),
+                            'k' => new King(player),
+                            _ => null,
+                        };
+                        chessboard[new Position(row, col)] = piece;
+                        col++;
+                    }
+                }
+            }
+
+            var currentPlayer = parts[1] == "w" ? Player.White : Player.Black;
+
+            chessboard.SetEnPassantPosition(Player.White, null);
+            chessboard.SetEnPassantPosition(Player.Black, null);
+            if (parts[3] != "-")
+            {
+                int file = parts[3][0] - 'a';
+                int rank = '8' - parts[3][1];
+                chessboard.SetEnPassantPosition(currentPlayer.Opponent(), new Position(rank, file));
+            }
+
+            return new GameState(currentPlayer, chessboard);
+        }
     }
 }
